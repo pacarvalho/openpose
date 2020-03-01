@@ -1,7 +1,7 @@
+#include <openpose/utilities/keypoint.hpp>
 #include <limits> // std::numeric_limits
 #include <opencv2/imgproc/imgproc.hpp> // cv::line, cv::circle
 #include <openpose/utilities/fastMath.hpp>
-#include <openpose/utilities/keypoint.hpp>
 
 namespace op
 {
@@ -185,16 +185,17 @@ namespace op
             {
                 // Array<T> --> cv::Mat
                 auto frame = frameArray.getCvMat();
+                cv::Mat cvFrame = OP_OP2CVMAT(frame);
 
                 // Sanity check
-                if (frame.channels() != 3)
+                if (cvFrame.channels() != 3)
                     error(errorMessage, __LINE__, __FUNCTION__, __FILE__);
 
                 // Get frame channels
-                const auto width = frame.size[1];
-                const auto height = frame.size[0];
+                const auto width = cvFrame.size[1];
+                const auto height = cvFrame.size[0];
                 const auto area = width * height;
-                cv::Mat frameBGR(height, width, CV_32FC3, frame.data);
+                cv::Mat frameBGR(height, width, CV_32FC3, cvFrame.data);
 
                 // Parameters
                 const auto lineType = 8;
@@ -434,7 +435,7 @@ namespace op
                     error("Person index out of range.", __LINE__, __FUNCTION__, __FILE__);
                 // Count keypoints
                 auto nonZeroCounter = 0;
-                const auto baseIndex = person * keypoints.getVolume(1,2);
+                const auto baseIndex = person * (int)keypoints.getVolume(1,2);
                 for (auto part = 0 ; part < keypoints.getSize(1) ; part++)
                     if (keypoints[baseIndex + 3*part + 2] >= threshold)
                         nonZeroCounter++;
@@ -486,8 +487,8 @@ namespace op
             // Get total distance
             T totalDistance = 0;
             int nonZeroCounter = 0;
-            const auto baseIndexA = personA * keypointsA.getVolume(1,2);
-            const auto baseIndexB = personB * keypointsB.getVolume(1,2);
+            const auto baseIndexA = personA * (int)keypointsA.getVolume(1,2);
+            const auto baseIndexB = personB * (int)keypointsB.getVolume(1,2);
             for (auto part = 0 ; part < keypointsA.getSize(1) ; part++)
             {
                 if (keypointsA[baseIndexA+3*part+2] >= threshold && keypointsB[baseIndexB+3*part+2] >= threshold)
